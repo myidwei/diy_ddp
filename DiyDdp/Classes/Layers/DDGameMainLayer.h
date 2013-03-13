@@ -10,18 +10,21 @@
 #import "cocos2d.h"
 #import "DDGameLevel.h"
 #import "DDItem.h"
+#define ITEM_SIZE 40
 
 @interface DDGameMainLayer : CCLayer {
     NSInteger _level;
     DDGameLevel* _gameLevel;
-    NSMutableArray* _items;
+    NSMutableDictionary* _items;
     CGPoint _startPoint;
+    BOOL _moving;
+    DDItem* _selectedItem;
 }
 
 + (CCScene*)sceneWithLevel:(NSInteger)level;
 
 - (id)initWithLevel:(NSInteger)level;
-
-- (void)drawLevel;
+- (void)startLevel;
+- (void)exchangeFromRow:(NSInteger)row andCol:(NSInteger)col toRow:(NSInteger)toRow andCol:(NSInteger)toCol;
 
 @end

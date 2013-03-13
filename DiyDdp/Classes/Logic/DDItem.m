@@ -11,7 +11,7 @@
 @implementation DDItem
 @synthesize image = _image;
 @synthesize row = _row;
-@synthesize col = col;
+@synthesize col = _col;
 @synthesize tag = _tag;
 
 + (DDItem*)emptyItem
@@ -30,9 +30,7 @@
 - (id)initWithTag:(NSInteger)tag
 {
     if(self = [super init]){
-        if(tag != -1){
-            _tag = tag;
-        }
+        _tag = tag;
     }
     return self;
 }
@@ -45,5 +43,17 @@
     [super dealloc];
 }
 
+- (BOOL)isEmpty
+{
+    return _tag == -1;
+}
+
+- (BOOL)isNextToItem:(DDItem*)item
+{
+    if((_row == item.row && abs(_col-item.col) == 1) || (_col == item.col && abs(_row-item.row) == 1)){
+        return YES;
+    }
+    return NO;
+}
 
 @end

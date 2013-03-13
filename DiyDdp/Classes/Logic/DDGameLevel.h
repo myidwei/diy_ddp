@@ -29,5 +29,9 @@
 - (id)initWithSize:(CGSize)size itemCount:(NSInteger)itemCount;
 - (BOOL)canPutOnRow:(NSInteger)row col:(NSInteger)col tag:(NSInteger)tag;
 - (void)resetLevel;
+- (NSArray*)needRemoveItems;
+- (BOOL)needReset;
+- (void)removeItemsIfNeed;
+- (void)exchangeFromRow:(NSInteger)row andCol:(NSInteger)col toRow:(NSInteger)toRow andCol:(NSInteger)toCol;
 
 @end

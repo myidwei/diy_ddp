@@ -28,6 +28,7 @@
 + (DDItem*)emptyItem;
 + (DDItem*)itemWithTag:(NSInteger)tag;
 
+- (BOOL)isEmpty;
 - (id)initWithTag:(NSInteger)tag;
-
+- (BOOL)isNextToItem:(DDItem*)item;
 @end
