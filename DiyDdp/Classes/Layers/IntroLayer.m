@@ -10,7 +10,7 @@
 // Import the interfaces
 #import "IntroLayer.h"
 #import "HelloWorldLayer.h"
-
+#import "DDGameMainLayer.h"
 
 #pragma mark - IntroLayer
 
@@ -37,25 +37,9 @@
 -(void) onEnter
 {
 	[super onEnter];
-
-	// ask director for the window size
-	CGSize size = [[CCDirector sharedDirector] winSize];
-
-	CCSprite *background;
-	
-	if( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone ) {
-		background = [CCSprite spriteWithFile:@"Default.png"];
-		background.rotation = 90;
-	} else {
-		background = [CCSprite spriteWithFile:@"Default-Landscape~ipad.png"];
-	}
-	background.position = ccp(size.width/2, size.height/2);
-
-	// add the label as a child to this Layer
-	[self addChild: background];
-	
-	// In one second transition to the new scene
-	[self scheduleOnce:@selector(makeTransition:) delay:1];
+    
+    CCScene* newScene = [DDGameMainLayer sceneWithLevel:1];
+	[[CCDirector sharedDirector] replaceScene:newScene];
 }
 
 -(void) makeTransition:(ccTime)dt
