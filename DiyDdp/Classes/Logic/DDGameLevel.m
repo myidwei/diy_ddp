@@ -32,34 +32,122 @@
     [super dealloc];
 }
 
-//检查当前数据是否需要重置（即无解的情况）
-- (BOOL)needReset
+//检查某个位置如果放置某个Item是否可以消除
+- (BOOL)checkRow:(NSInteger)row andCol:(NSInteger)col withTag:(NSInteger)tag
 {
-    for(int row=0;row <_rows;row++){
-        for(int col=0;col<_cols;col++){
-            //逐个点检查
+    //两个方向，6个位置，只要有一个颜色与两个连接的相同，就有解
+    int h[6][2] = {{2,0},{-3,0},{1,1},{-1,1},{-1,-2},{1,-2}};
+    int v[6][2] = {{0,2},{0,-3},{1,-1},{1,1},{-2,-1},{-2,1}};
+    //垂直方向
+    for(int col=0;col<_cols;col++){
+        int current = 0;
+        for(int row=0;row<_rows;row++)
+        {
             DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
-            //left right up down
-            int left[2][2] = {{0,-2},{0,-3}};
-            int right[2][2] = {{0,2},{0,3}};
-            int up[2][2] = {{2,0},{3,0}};
-            int down[2][2] = {{-2,0},{3,0}};
-            int dirs[4][2][2] = {left,right,up,down};
-            for(int i=0;i<4;i++){
-                CGPoint p1 = ccp(col + dirs[i][0][0],row + dirs[i][0][1]);
-                CGPoint p2 = ccp(col + dirs[i][1][0],row + dirs[i][1][1]);
-                //颜色完全与当前相同才可以
-                if(p1.x > 0 && p1.y > 0 && p1.x < _cols && p1.y < _rows && p2.x > 0 && p2.y > 0 && p2.x < _cols && p2.y < _rows){
-                    DDItem* item1 = [_data objectForKey:[DDGameLevel keyForRow:p1.y andCol:p1.x]];
-                    DDItem* item2 = [_data objectForKey:[DDGameLevel keyForRow:p2.y andCol:p2.x]];
-                    if(item1.tag == item2.tag && item1.tag == item.tag){
-                        return NO;
+            if([item isEmpty])
+                continue;
+            if(item.tag == current)
+            {
+                for(int i=0;i<6;i++){
+                    DDItem* checkItem = [_data objectForKey:[DDGameLevel keyForRow:v[i][0] andCol:v[i][1]]];
+                    if(checkItem.tag == item.tag){
+                        return YES;
                     }
                 }
+            }else{
+                current = tag;
             }
         }
     }
+    
+    
+    //水平方向
+    for(int row=0;row<_rows;row++){
+        int current = 0;
+        for(int col=0;col<_cols;col++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty])
+                continue;
+            if(item.tag == current)
+            {
+                for(int i=0;i<6;i++){
+                    DDItem* checkItem = [_data objectForKey:[DDGameLevel keyForRow:h[i][0] andCol:h[i][1]]];
+                    if(checkItem.tag == item.tag){
+                        return YES;
+                    }
+                }
+            }else{
+                current = tag;
+            }
+        }
+    }
+    
+    return NO;
+}
+
+//检查当前数据是否需要重置（即无解的情况）
+- (BOOL)needReset
+{
+    for(int row=_rows-1;row>=0;row--){
+        for(int col=0;col<_cols;col++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            printf("%2d ",item.tag);
+        }
+        printf("\n");
+    }
+    printf("-----------------\n");
+    //两个方向，6个位置，只要有一个颜色与两个连接的相同，就有解
+    int h[6][2] = {{2,0},{-3,0},{1,1},{-1,1},{-1,-2},{1,-2}};
+    int v[6][2] = {{0,2},{0,-3},{1,-1},{1,1},{-2,-1},{-2,1}};
+    //垂直方向
+    for(int col=0;col<_cols;col++){
+        int current = 0;
+        for(int row=0;row<_rows;row++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty])
+                continue;
+            if(item.tag == current)
+            {
+                for(int i=0;i<6;i++){
+                    DDItem* checkItem = [_data objectForKey:[DDGameLevel keyForRow:item.row + v[i][0] andCol:item.col + v[i][1]]];
+                    if(checkItem != nil && checkItem.tag == item.tag){
+                        return NO;
+                    }
+                }
+            }else{
+                current = item.tag;
+            }
+        }
+    }
+    
+    
+    //水平方向
+    for(int row=0;row<_rows;row++){
+        int current = 0;
+        for(int col=0;col<_cols;col++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty])
+                continue;
+            if(item.tag == current)
+            {
+                for(int i=0;i<6;i++){
+                    DDItem* checkItem = [_data objectForKey:[DDGameLevel keyForRow:item.row + h[i][0] andCol:item.col+h[i][1]]];
+                    if(checkItem != nil && checkItem.tag == item.tag){
+                        return NO;
+                    }
+                }
+            }else{
+                current = item.tag;
+            }
+        }
+    }
+    
     return YES;
+
 }
 
 //消除需要消除的Item
@@ -80,6 +168,9 @@
         for(int col=0;col<_cols;col++){
             //逐个点检查
             DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty]){
+                continue;
+            }
             //两个方向
             int nowRow = 0;
             int nowCol = 0;

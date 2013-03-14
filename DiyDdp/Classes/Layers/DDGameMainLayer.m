@@ -31,7 +31,6 @@
         NSInteger col = 8;
         NSInteger itemCount = 6;
         _gameLevel = [[DDGameLevel alloc] initWithSize:CGSizeMake(row,col) itemCount:itemCount];
-        [_gameLevel resetLevel];
         CGFloat startX = (size.width - col*ITEM_SIZE)/2 + ITEM_SIZE/2;
         CGFloat startY = (size.height - row*ITEM_SIZE)/2 + ITEM_SIZE/2;
         _startPoint = CGPointMake(startX,startY);
@@ -68,12 +67,20 @@
 
 - (void)exchangeFromRow:(NSInteger)row andCol:(NSInteger)col toRow:(NSInteger)toRow andCol:(NSInteger)toCol
 {
+    
+    CCSprite* selected = [_items objectForKey:[DDGameLevel keyForRow:_selectedItem.row andCol:_selectedItem.col]];
+    if(selected != nil){
+        selected.scale = 1;
+        [selected stopActionByTag:99];
+    }
+    _selectedItem = nil;
+    
     if((row == toRow && abs(col-toCol) == 1) || (col == toCol && abs(row-toRow) == 1)){
         
         //先交换数据
         [_gameLevel exchangeFromRow:row andCol:col toRow:toRow andCol:toCol];
         NSArray* needRemove = [_gameLevel needRemoveItems];
-        if([needRemove count] == 0 || TRUE){
+        if([needRemove count] == 0){
             _moving = YES;
             //交换回来
             [_gameLevel exchangeFromRow:toRow andCol:toCol toRow:row andCol:col];
@@ -99,6 +106,9 @@
             CCMoveTo* f2 = [CCMoveTo actionWithDuration:0.3 position:f];
             CCCallBlock* c2 = [CCCallBlock actionWithBlock:^(){
                 _moving = NO;
+                if([_gameLevel needReset]){
+                    [self startLevel];
+                }
             }];
             CCSequence* seq1 = [CCSequence actions:t1,c1,f1,nil];
             CCSequence* seq2 = [CCSequence actions:f2,t2,c2,nil];
@@ -107,7 +117,7 @@
             [to runAction:seq2];
             
         }else{
-            
+            _moving = YES;
             //动画效果
             CCSprite* from = [_items objectForKey:[DDGameLevel keyForRow:row andCol:col]];
             CCSprite* to = [_items objectForKey:[DDGameLevel keyForRow:toRow andCol:toCol]];
@@ -121,8 +131,28 @@
                 //交换Sprite
                 [_items setObject:to forKey:[DDGameLevel keyForRow:row andCol:col]];
                 [_items setObject:from forKey:[DDGameLevel keyForRow:toRow andCol:toCol]];
+                for(DDItem* item in needRemove)
+                {
+                    CCSprite* sprite = [_items objectForKey:[DDGameLevel keyForRow:item.row andCol:item.col]];
+                    CCScaleTo* scale = [CCScaleTo actionWithDuration:0.2 scale:2];
+                    CCFadeOut* fadeOut = [CCFadeOut actionWithDuration:0.1];
+                    CCCallBlock* call = [CCCallBlock actionWithBlock:^(){
+                        [sprite removeFromParentAndCleanup:YES];
+                        [_items removeObjectForKey:[DDGameLevel keyForRow:item.row andCol:item.col]];
+                    }];
+                    
+                    CCSequence* seq = [CCSequence actions:scale,call, nil];
+                    [sprite runAction:seq];
+                    [sprite runAction:fadeOut];
+                }
+                [_gameLevel removeItemsIfNeed];
                 _moving = NO;
+                //消除以后需要继续下落
+                if([_gameLevel needReset]){
+                    [self startLevel];
+                }
             }];
+            
             CCSequence* seq1 = [CCSequence actions:t1,nil];
             CCSequence* seq2 = [CCSequence actions:f1,c2,nil];
             
@@ -130,18 +160,22 @@
             [to runAction:seq2];
             
         }
-        
-        
-        
     }
 }
 
 
 - (void)startLevel
 {
+    [_gameLevel resetLevel];
     CGSize size = [[UIScreen mainScreen] bounds].size;
-    for(CCSprite* sprite in _items){
-        [sprite removeFromParentAndCleanup:YES];
+    NSEnumerator* e = [_items objectEnumerator];
+    while(YES){
+        CCSprite* sprite = [e nextObject];
+        if(sprite != nil){
+            [sprite removeFromParentAndCleanup:YES];
+        }else{
+            break;
+        }
     }
     [_items removeAllObjects];
     NSEnumerator* items = [_gameLevel.data objectEnumerator];
@@ -189,7 +223,7 @@
 
 - (void)selectItem:(DDItem*)item
 {
-    if(item == _selectedItem){
+    if(item == _selectedItem || [item isEmpty]){
         return;
     }
     if(_selectedItem == nil){
@@ -206,13 +240,15 @@
     }else{
         if([_selectedItem isNextToItem:item]){
             [self exchangeFromRow:_selectedItem.row andCol:_selectedItem.col toRow:item.row andCol:item.col];
+        }else{
+            CCSprite* selected = [_items objectForKey:[DDGameLevel keyForRow:_selectedItem.row andCol:_selectedItem.col]];
+            if(selected != nil){
+                selected.scale = 1;
+                [selected stopActionByTag:99];
+            }
+            _selectedItem = nil;
         }
-        CCSprite* selected = [_items objectForKey:[DDGameLevel keyForRow:_selectedItem.row andCol:_selectedItem.col]];
-        if(selected != nil){
-            selected.scale = 1;
-            [selected stopActionByTag:99];
-        }
-        _selectedItem = nil;
+        
     }
 }
 

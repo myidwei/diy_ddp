@@ -33,5 +33,6 @@
 - (BOOL)needReset;
 - (void)removeItemsIfNeed;
 - (void)exchangeFromRow:(NSInteger)row andCol:(NSInteger)col toRow:(NSInteger)toRow andCol:(NSInteger)toCol;
+- (BOOL)checkRow:(NSInteger)row andCol:(NSInteger)col withTag:(NSInteger)tag;
 
 @end
