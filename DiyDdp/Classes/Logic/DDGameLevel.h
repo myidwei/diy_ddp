@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DDItem.h"
+#import "DDMove.h"
 @interface DDGameLevel : NSObject
 {
     NSInteger _level;
@@ -34,5 +35,8 @@
 - (void)removeItemsIfNeed;
 - (void)exchangeFromRow:(NSInteger)row andCol:(NSInteger)col toRow:(NSInteger)toRow andCol:(NSInteger)toCol;
 - (BOOL)checkRow:(NSInteger)row andCol:(NSInteger)col withTag:(NSInteger)tag;
-
+- (DDMove*)moveDownOnRow:(NSInteger)row andCol:(NSInteger)col;
+- (NSArray*)moveDownItemsIfNeed;
+- (NSArray*)fillItems;
+- (DDItem*)hinit;
 @end

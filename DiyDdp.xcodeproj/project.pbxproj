@@ -34,6 +34,8 @@
 		3395D67216EF83B30089A532 /* item@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3395D67016EF83B30089A532 /* item@2x.png */; };
 		3395D67516EF89660089A532 /* iphone_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 3395D67316EF89660089A532 /* iphone_bg.png */; };
 		3395D67616EF89660089A532 /* iphone_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3395D67416EF89660089A532 /* iphone_bg@2x.png */; };
+		3395D67916F1AB270089A532 /* DDMove.m in Sources */ = {isa = PBXBuildFile; fileRef = 3395D67816F1AB270089A532 /* DDMove.m */; };
+		3395D67C16F217930089A532 /* DDControlLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3395D67B16F217930089A532 /* DDControlLayer.m */; };
 		33A4E9EC16EF40A2002F2528 /* DDItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 33A4E9EB16EF40A2002F2528 /* DDItem.m */; };
 		33D4E80016EF357D00B84224 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D4E7FF16EF357D00B84224 /* QuartzCore.framework */; };
 		33D4E80216EF357D00B84224 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D4E80116EF357D00B84224 /* OpenGLES.framework */; };
@@ -194,6 +196,10 @@
 		3395D67016EF83B30089A532 /* item@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "item@2x.png"; sourceTree = "<group>"; };
 		3395D67316EF89660089A532 /* iphone_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone_bg.png; sourceTree = "<group>"; };
 		3395D67416EF89660089A532 /* iphone_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iphone_bg@2x.png"; sourceTree = "<group>"; };
+		3395D67716F1AB270089A532 /* DDMove.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDMove.h; sourceTree = "<group>"; };
+		3395D67816F1AB270089A532 /* DDMove.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDMove.m; sourceTree = "<group>"; };
+		3395D67A16F217920089A532 /* DDControlLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDControlLayer.h; sourceTree = "<group>"; };
+		3395D67B16F217930089A532 /* DDControlLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDControlLayer.m; sourceTree = "<group>"; };
 		33A4E9EA16EF40A2002F2528 /* DDItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDItem.h; sourceTree = "<group>"; };
 		33A4E9EB16EF40A2002F2528 /* DDItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDItem.m; sourceTree = "<group>"; };
 		33D4E7FB16EF357D00B84224 /* DiyDdp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiyDdp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -937,9 +943,9 @@
 		33D4E99716EF369800B84224 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				33D4E99D16EF369800B84224 /* Logic */,
 				3395D66B16EF81330089A532 /* Sprites */,
 				33D4E99816EF369800B84224 /* Layers */,
-				33D4E99D16EF369800B84224 /* Logic */,
 				33D4E99E16EF369800B84224 /* Utils */,
 			);
 			path = Classes;
@@ -954,6 +960,8 @@
 				33D4E99C16EF369800B84224 /* IntroLayer.m */,
 				3395D61516EF6FB60089A532 /* DDGameMainLayer.h */,
 				3395D61616EF6FB60089A532 /* DDGameMainLayer.m */,
+				3395D67A16F217920089A532 /* DDControlLayer.h */,
+				3395D67B16F217930089A532 /* DDControlLayer.m */,
 			);
 			path = Layers;
 			sourceTree = "<group>";
@@ -965,6 +973,8 @@
 				33D4E9A216EF36C200B84224 /* DDGameLevel.m */,
 				33A4E9EA16EF40A2002F2528 /* DDItem.h */,
 				33A4E9EB16EF40A2002F2528 /* DDItem.m */,
+				3395D67716F1AB270089A532 /* DDMove.h */,
+				3395D67816F1AB270089A532 /* DDMove.m */,
 			);
 			path = Logic;
 			sourceTree = "<group>";
@@ -1182,6 +1192,8 @@
 				33A4E9EC16EF40A2002F2528 /* DDItem.m in Sources */,
 				3395D61716EF6FB60089A532 /* DDGameMainLayer.m in Sources */,
 				3395D66E16EF814F0089A532 /* DDItemSprite.m in Sources */,
+				3395D67916F1AB270089A532 /* DDMove.m in Sources */,
+				3395D67C16F217930089A532 /* DDControlLayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

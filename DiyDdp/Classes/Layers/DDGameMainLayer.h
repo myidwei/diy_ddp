@@ -10,9 +10,10 @@
 #import "cocos2d.h"
 #import "DDGameLevel.h"
 #import "DDItem.h"
+#import "DDControlLayer.h"
 #define ITEM_SIZE 40
 
-@interface DDGameMainLayer : CCLayer {
+@interface DDGameMainLayer : CCLayer<DDControlLayerDelegate> {
     NSInteger _level;
     //游戏数据
     DDGameLevel* _gameLevel;
@@ -24,12 +25,16 @@
     BOOL _moving;
     //已选择的Item
     DDItem* _selectedItem;
+    
+    NSInteger _score;
+    CCLabelTTF* _scoreLabel;
 }
 
 + (CCScene*)sceneWithLevel:(NSInteger)level;
 
 - (id)initWithLevel:(NSInteger)level;
 - (void)startLevel;
+- (void)drawLevel;
 - (void)exchangeFromRow:(NSInteger)row andCol:(NSInteger)col toRow:(NSInteger)toRow andCol:(NSInteger)toCol;
-
+- (void)clearItems;
 @end

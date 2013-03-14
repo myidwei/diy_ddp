@@ -9,8 +9,17 @@
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
 
+@protocol DDControlLayerDelegate <NSObject>
+
+- (void)resetPressed;
+- (void)hinitPressed;
+
+@end
+
 @interface DDControlLayer : CCLayer {
-    
+    id<DDControlLayerDelegate> _delegate;
 }
+
+@property (assign,nonatomic) id<DDControlLayerDelegate> delegate;
 
 @end

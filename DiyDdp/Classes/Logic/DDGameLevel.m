@@ -159,87 +159,208 @@
     }
 }
 
+//下落Item，返回下落的移动数组(从哪儿到哪儿)
+- (NSArray*)moveDownItemsIfNeed
+{
+    NSMutableArray* moves = [NSMutableArray array];
+    for(int col=0;col<_cols;col++)
+    {
+        for(int row=0;row<_rows;row++)
+        {
+            DDMove* move = [self moveDownOnRow:row andCol:col];
+            if([move doesMove])
+            {
+                [moves addObject:move];
+            }
+        }
+    }
+    return moves;
+}
+
+- (DDItem*)hinit
+{
+    for(int row=_rows-1;row>=0;row--){
+        for(int col=0;col<_cols;col++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            printf("%2d ",item.tag);
+        }
+        printf("\n");
+    }
+    printf("-----------------\n");
+    //两个方向，6个位置，只要有一个颜色与两个连接的相同，就有解
+    int h[6][2] = {{0,2},{0,-3},{1,1},{-1,1},{-1,-2},{1,-2}};
+    int v[6][2] = {{2,0},{-3,0},{1,-1},{1,1},{-2,-1},{-2,1}};
+    //垂直方向
+    for(int col=0;col<_cols;col++){
+        int current = 0;
+        for(int row=0;row<_rows;row++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty])
+                continue;
+            if(item.tag == current)
+            {
+                for(int i=0;i<6;i++){
+                    DDItem* checkItem = [_data objectForKey:[DDGameLevel keyForRow:item.row + v[i][0] andCol:item.col + v[i][1]]];
+                    if(checkItem != nil && checkItem.tag == item.tag){
+                        return checkItem;
+                    }
+                }
+            }else{
+                current = item.tag;
+            }
+        }
+    }
+    
+    
+    //水平方向
+    for(int row=0;row<_rows;row++){
+        int current = 0;
+        for(int col=0;col<_cols;col++)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty])
+                continue;
+            if(item.tag == current)
+            {
+                for(int i=0;i<6;i++){
+                    DDItem* checkItem = [_data objectForKey:[DDGameLevel keyForRow:item.row + h[i][0] andCol:item.col+h[i][1]]];
+                    if(checkItem != nil && checkItem.tag == item.tag){
+                        return checkItem;
+                    }
+                }
+            }else{
+                current = item.tag;
+            }
+        }
+    }
+    
+    return nil;
+}
+
+//填充新的Item
+- (NSArray*)fillItems
+{
+    NSMutableArray* items = [NSMutableArray array];
+    for(int col=0;col<_cols;col++)
+    {
+        for(int row=_rows-1;row>=0;row--)
+        {
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty])
+            {
+                //随机生成
+                NSInteger itemTag = arc4random()%_itemCount + 1;
+                DDItem* item = [DDItem itemWithTag:itemTag];
+                item.row = row;
+                item.col = col;
+                [_data setObject:item forKey:[DDGameLevel keyForRow:row andCol:col]];
+                [items addObject:item];
+            }
+        }
+    }
+    return items;
+}
+
+//将某行某列的元素下降到不能下降为止
+- (DDMove*)moveDownOnRow:(NSInteger)row andCol:(NSInteger)col
+{
+    DDItem* source = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+    if([source isEmpty])
+    {
+        return [DDMove doNotMove];
+    }
+    NSInteger targetRow = row;
+    NSInteger targetCol = col;
+    BOOL moveable = NO;
+    DDMove* move = nil;
+    for(int i=row-1;i>=0;i--)
+    {
+        DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:i andCol:col]];
+        //不是空了，直接退出
+        if(![item isEmpty])
+        {
+            break;
+        }else{
+            moveable = YES;
+            targetRow = i;
+        }
+    }
+    if(moveable){
+        source.row = targetRow;
+        [_data setObject:source forKey:[DDGameLevel keyForRow:targetRow andCol:targetCol]];
+        [_data setObject:[DDItem emptyItem] forKey:[DDGameLevel keyForRow:row andCol:col]];
+        move = [DDMove moveFromRow:row andCol:col toRow:targetRow andCol:targetCol];
+    }else{
+        move = [DDMove doNotMove];
+    }
+    return move;
+}
+
 //检查当前数据是否有需要移除（消去）的，返回需要消除的Item
 - (NSArray*)needRemoveItems
 {
     NSMutableArray* items = [NSMutableArray array];
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+    //横向
     for(int row=0;row <_rows;row++){
+        int total = 0;
+        int tag = -1;
+        NSMutableArray* temp = [NSMutableArray array];
         for(int col=0;col<_cols;col++){
-            //逐个点检查
             DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
-            if([item isEmpty]){
-                continue;
-            }
-            //两个方向
-            int nowRow = 0;
-            int nowCol = 0;
-            //left and right
-            int total = 1;
-            NSMutableArray* temp = [NSMutableArray array];
-            [temp addObject:item];
-            //left
-            nowCol = col - 1;
-            while(nowCol >=0 && nowCol < _cols){
-                DDItem* it = [_data objectForKey:[DDGameLevel keyForRow:row andCol:nowCol]];
-                if(it.tag == item.tag){
-                    [temp addObject:it];
-                    total++;
-                    nowCol--;
-                }else{
-                    break;
+            if([item isEmpty] || item.tag != tag){
+                if(total >= 3)
+                {
+                    //加入到列表
+                    [items addObjectsFromArray:temp];
                 }
+                [temp removeAllObjects];
+                total = 1;
+                tag = item.tag;
+                [temp addObject:item];
+            }else{
+                total++;
+                [temp addObject:item];
             }
-            //right
-            nowCol = col + 1;
-            while(nowCol >=0 && nowCol < _cols){
-                DDItem* it = [_data objectForKey:[DDGameLevel keyForRow:row andCol:nowCol]];
-                if(it.tag == item.tag){
-                    [temp addObject:it];
-                    total++;
-                    nowCol++;
-                }else{
-                    break;
-                }
-            }
-            if(total >= 3){
-                [items addObjectsFromArray:temp];
-            }
-            
-            //up and down
-            total = 1;
-            [temp removeAllObjects];
-            [temp addObject:item];
-            //left
-            nowRow = row - 1;
-            while(nowRow >=0 && nowRow < _rows){
-                DDItem* it = [_data objectForKey:[DDGameLevel keyForRow:nowRow andCol:col]];
-                if(it.tag == item.tag){
-                    [temp addObject:it];
-                    total++;
-                    nowRow--;
-                }else{
-                    break;
-                }
-            }
-            //right
-            nowRow = row + 1;
-            while(nowRow >=0 && nowRow < _rows){
-                DDItem* it = [_data objectForKey:[DDGameLevel keyForRow:nowRow andCol:col]];
-                if(it.tag == item.tag){
-                    [temp addObject:it];
-                    total++;
-                    nowRow++;
-                }else{
-                    break;
-                }
-            }
-            if(total >= 3){
-                [items addObjectsFromArray:temp];
-            }
-            
+        }
+        if(total >= 3)
+        {
+            //加入到列表
+            [items addObjectsFromArray:temp];
         }
     }
+    
+    //纵向
+    for(int col=0;col <_cols;col++){
+        int total = 0;
+        int tag = -1;
+        NSMutableArray* temp = [NSMutableArray array];
+        for(int row=0;row<_rows;row++){
+            DDItem* item = [_data objectForKey:[DDGameLevel keyForRow:row andCol:col]];
+            if([item isEmpty] || item.tag != tag){
+                if(total >= 3)
+                {
+                    //加入到列表
+                    [items addObjectsFromArray:temp];
+                }
+                [temp removeAllObjects];
+                total = 1;
+                tag = item.tag;
+                [temp addObject:item];
+            }else{
+                total++;
+                [temp addObject:item];
+            }
+        }
+        if(total >= 3)
+        {
+            //加入到列表
+            [items addObjectsFromArray:temp];
+        }
+    }
+    
     //排重
     for(DDItem* item in items){
         [dict setObject:item forKey:[DDGameLevel keyForRow:item.row andCol:item.col]];
